@@ -4,18 +4,22 @@
   <title>Dashboard - SportsApp</title>
 </head>
 <body>
-  <h1 id="welcome">Welcome!</h1>
-  <p>You are now logged in and verified.</p>
+<h2>Welcome!</h2>
+<p id="user"></p>
+<script>
+  fetch("/me")
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("user").textContent =
+        "Logged in as " + data.username;
+    });
+</script>
+<!-- Logout form -->
+<form method="POST" action="/logout">
+  <button type="submit">Logout</button>
+</form>
 
-  <script>
-    // Get query params
-    const params = new URLSearchParams(window.location.search);
-    const username = params.get("username");
 
-    if (username) {
-      document.getElementById("welcome").textContent = `Welcome, ${username}!`;
-    }
-  </script>
 </body>
 
 </html>
