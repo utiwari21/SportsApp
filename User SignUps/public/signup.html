@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Signup - SportsApp</title>
+</head>
+<body>
+  <h1>Signup</h1>
+  <form method="POST" action="/signup">
+    <label>Username: <input type="text" name="username" required></label><br>
+    <label>Email: <input type="email" name="email" required></label><br>
+    <label>Password: <input type="password" name="password" required></label><br>
+    <button type="submit">Signup</button>
+  </form>
+
+  <p style="color:red;">
+    <!-- Show error from query param -->
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const error = params.get("error");
+      if (error) document.write(error);
+    </script>
+  </p>
+</body>
+</html>

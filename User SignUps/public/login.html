@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login - SportsApp</title>
+</head>
+<body>
+  <h1>Login</h1>
+  <form method="POST" action="/login">
+    <label>Email: <input type="email" name="email" required></label><br>
+    <label>Password: <input type="password" name="password" required></label><br>
+    <button type="submit">Login</button>
+  </form>
+
+  <!-- Display success message in green -->
+  <p style="color:green;">
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const success = params.get("success");
+      if (success) document.write(success);
+    </script>
+  </p>
+
+  <!-- Display error message in red -->
+  <p style="color:red;">
+    <script>
+      const errorParams = new URLSearchParams(window.location.search);
+      const error = errorParams.get("error");
+      if (error) document.write(error);
+    </script>
+  </p>
+</body>
+</html>
