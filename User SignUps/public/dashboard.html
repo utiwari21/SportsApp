@@ -2,24 +2,87 @@
 <html>
 <head>
   <title>Dashboard - SportsApp</title>
+  <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
-<h2>Welcome!</h2>
-<p id="user"></p>
-<script>
-  fetch("/me")
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("user").textContent =
-        "Logged in as " + data.username;
-    });
-</script>
-<!-- Logout form -->
-<form method="POST" action="/logout">
+
+<!-- Header -->
+<header class="dashboard-header">
+  <div class="logo">🏀 SportsApp</div>
+  <div class="welcome" id="user-welcome">
+    <!-- Welcome username inserted here -->
+  </div>
+</header>
+
+<!-- Main dashboard content -->
+<main class="dashboard-content">
+  <!-- Sport selection -->
+  <div id="sport-selection">
+    <h2>Select your sport</h2>
+    <div class="sports-buttons">
+      <button onclick="selectSport('Pickleball')">Pickleball</button>
+      <button onclick="selectSport('Badminton')">Badminton</button>
+    </div>
+    <p id="selected-sport"></p>
+
+    <!-- Locations section -->
+    <div id="locations-section" style="display:none;">
+      <div class="locations-header">Locations</div>
+      <div class="location-buttons" id="location-buttons"></div>
+    </div>
+  </div>
+</main>
+
+<!-- Logout button -->
+<form class="logout-form" method="POST" action="/logout">
   <button type="submit">Logout</button>
 </form>
 
+<script>
+  // Fetch username
+  fetch("/me")
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("user-welcome").textContent =
+        `Welcome ${data.username}!`;
+    });
+
+  const selectedSportEl = document.getElementById("selected-sport");
+  const locationsSection = document.getElementById("locations-section");
+  const locationButtonsDiv = document.getElementById("location-buttons");
+
+  // Sport selection
+  function selectSport(sport) {
+    selectedSportEl.textContent = `Selected sport: ${sport}`;
+
+    // Show location buttons
+    locationsSection.style.display = "block";
+
+    // Clear previous buttons
+    locationButtonsDiv.innerHTML = "";
+
+    let locations = [];
+    if (sport === "Pickleball") {
+      locations = ["Rec Center", "Schenley Park"];
+    } else if (sport === "Badminton") {
+      locations = ["Rec Center"];
+    }
+
+    locations.forEach(loc => {
+      const btn = document.createElement("button");
+      btn.textContent = loc;
+      btn.onclick = () => selectLocation(sport, loc);
+      locationButtonsDiv.appendChild(btn);
+    });
+  }
+
+  // Location selection: go to page showing users + times
+  function selectLocation(sport, location) {
+    // Redirect to matches page with query params
+    const url = `/matches.html?sport=${encodeURIComponent(sport)}&location=${encodeURIComponent(location)}`;
+    window.location.href = url;
+  }
+</script>
 
 </body>
-
 </html>

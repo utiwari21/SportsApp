@@ -1,32 +1,51 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Login - SportsApp</title>
-</head>
-<body>
-  <h1>Login</h1>
-  <form method="POST" action="/login">
-    <label>Email: <input type="email" name="email" required></label><br>
-    <label>Password: <input type="password" name="password" required></label><br>
-    <button type="submit">Login</button>
-  </form>
+  <head>
+    <title>Login - SportsApp</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
 
-  <!-- Display success message in green -->
-  <p style="color:green;">
+  <body>
+    <div class="page">
+      <!-- Left image -->
+      <div class="left"></div>
+
+      <!-- Right content -->
+      <div class="right">
+        <div class="card">
+          <h2>Log In</h2>
+
+          <div id="msg"></div>
+
+          <form method="POST" action="/login">
+            <input name="email" placeholder="Email" required />
+            <input type="password" name="password" placeholder="Password" required />
+            <button type="submit">Log In</button>
+          </form>
+
+          <div class="link">
+            <a href="signup.html">Create an account</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
       const params = new URLSearchParams(window.location.search);
+      const error = params.get("error");
       const success = params.get("success");
-      if (success) document.write(success);
-    </script>
-  </p>
 
-  <!-- Display error message in red -->
-  <p style="color:red;">
-    <script>
-      const errorParams = new URLSearchParams(window.location.search);
-      const error = errorParams.get("error");
-      if (error) document.write(error);
+      if (error) {
+        document.getElementById("msg").innerHTML =
+          `<div class="msg error">${error}</div>`;
+      }
+
+      if (success) {
+        document.getElementById("msg").innerHTML =
+          `<div class="msg success">${success}</div>`;
+      }
     </script>
-  </p>
-</body>
+
+  </body>
+
 </html>

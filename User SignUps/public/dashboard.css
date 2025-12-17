@@ -1,0 +1,89 @@
+/* Reset and layout */
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Header at top */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: linear-gradient(90deg, #1e3c72, #2a5298); /* deep blue gradient */
+  color: white;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* Main dashboard content */
+.dashboard-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 40px;
+  background: linear-gradient(180deg, #a1c4fd, #c2e9fb); /* light cyan/blue gradient */
+  color: #1e3c72;
+}
+
+/* Sport selection buttons */
+.sports-buttons,
+.location-buttons {
+  display: flex;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 2px solid #1e3c72;
+  background: transparent;
+  color: #1e3c72;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background: #1e3c72;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* Selected sport text */
+#selected-sport {
+  margin-top: 24px;
+  font-weight: bold;
+}
+
+/* Locations section header */
+.locations-header {
+  margin-top: 30px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Logout button at bottom */
+.logout-form {
+  padding: 12px 40px;
+  background: linear-gradient(90deg, #1e3c72, #2a5298); /* same as header */
+  text-align: center;
+}
+
+.logout-form button {
+  border: 2px solid white;
+  background: transparent;
+  color: white;
+}
+
+.logout-form button:hover {
+  background: white;
+  color: #1e3c72;
+}

@@ -1,0 +1,114 @@
+* {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+}
+
+/* ---- Main split layout ---- */
+.page {
+  display: flex;
+  height: 100vh;
+}
+
+/* ---- Left image ---- */
+.left {
+  flex: 3;
+  background: url("pickleball_home.png") center / cover no-repeat;
+}
+
+/* ---- Right content ---- */
+.right {
+  flex: 2;
+  background: linear-gradient(135deg, #f6c453, #f0b429);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ---- Card ---- */
+.card {
+  width: 80%;
+  max-width: 360px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+/* ---- Headings ---- */
+h1, h2 {
+  margin-top: 0;
+  color: #1e3c72;
+}
+
+p {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* ---- Form ---- */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+input {
+  padding: 12px;
+  font-size: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* ---- Buttons ---- */
+button {
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  background: transparent;
+  border: 2px solid #1e3c72;
+  color: #1e3c72;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background: #1e3c72;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* ---- Messages ---- */
+.msg {
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.msg.error {
+  background: #ffe0e0;
+  color: #a40000;
+}
+
+.msg.success {
+  background: #e0ffe9;
+  color: #0f6a3a;
+}
+
+/* ---- Links ---- */
+.link {
+  margin-top: 12px;
+}
+
+.link a {
+  color: #1e3c72;
+  text-decoration: underline;
+  font-weight: 500;
+}
+

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Matches - SportsApp</title>
+  <link rel="stylesheet" href="dashboard.css">
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(#1e3c72, #e3f2fd, #1e3c72);
+      color: white;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 24px;
+      background: transparent;
+    }
+
+    h2, h3 { text-align: center; }
+
+    .time-selection { margin-top: 20px; text-align: center; }
+
+    .time-row { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 10px; }
+
+    select, input[type="date"] {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    .ampm-toggle {
+      width: 80px;
+      height: 34px;
+      border-radius: 20px;
+      background: linear-gradient(90deg, #9fd3ff, #4a90e2);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2px 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .ampm-toggle span { font-size: 14px; z-index: 2; }
+
+    .switch-circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #ffe082;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      transition: left 0.2s;
+      z-index: 1;
+    }
+
+    button {
+      margin-top: 14px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 2px solid white;
+      background: transparent;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover { background: rgba(255,255,255,0.15); }
+
+    .user-times {
+      margin-top: 24px;
+      max-height: 300px;
+      overflow-y: auto;
+      padding-right: 12px;
+    }
+
+    ul { padding-left: 20px; }
+  </style>
+</head>
+
+<body>
+<div class="container">
+  <h2>Schedule Your Time</h2>
+
+  <div class="time-selection">
+    <label>Date:</label><br>
+    <input type="date" id="date">
+
+    <div class="time-row">
+      <select id="hours"></select>
+      <select id="minutes">
+        <option value="0">00</option>
+        <option value="15">15</option>
+        <option value="30">30</option>
+        <option value="45">45</option>
+      </select>
+
+      <div class="ampm-toggle" id="ampm-switch">
+        <span>AM</span>
+        <div class="switch-circle"></div>
+        <span>PM</span>
+      </div>
+    </div>
+
+    <div class="time-row">
+      <label>Playing Time:</label>
+      <select id="duration">
+        <option value="30">30 min</option>
+        <option value="60">60 min</option>
+        <option value="90">90 min</option>
+        <option value="120">120 min</option>
+      </select>
+    </div>
+
+    <button id="add-time-btn">Add Time</button>
+  </div>
+
+  <div class="user-times">
+    <h3>Users with scheduled times</h3>
+    <ul id="user-times-list"></ul>
+  </div>
+</div>
+
+<script>
+/* =========================
+   DOM references
+========================= */
+const dateInput = document.getElementById("date");
+const hoursSelect = document.getElementById("hours");
+const minutesSelect = document.getElementById("minutes");
+const ampmSwitch = document.getElementById("ampm-switch");
+const switchCircle = document.querySelector(".switch-circle");
+const addTimeBtn = document.getElementById("add-time-btn");
+const durationSelect = document.getElementById("duration");
+const userTimesList = document.getElementById("user-times-list");
+
+/* =========================
+   Stored selections
+========================= */
+const selectedSport = localStorage.getItem("selectedSport") || "Pickleball";
+const selectedLocation = localStorage.getItem("selectedLocation") || "Rec Center";
+
+/* =========================
+   State
+========================= */
+let isAM = new Date().getHours() < 12;
+let addTimeInProgress = false;
+
+/* =========================
+   Helper: get date object in local time
+========================= */
+function getSelectedDateLocal() {
+  const [y, m, d] = dateInput.value.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+/* =========================
+   Date limits: today + 2 days
+========================= */
+const today = new Date();
+const maxDate = new Date(today);
+maxDate.setDate(maxDate.getDate() + 2);
+
+dateInput.min = today.toISOString().split("T")[0];
+dateInput.max = maxDate.toISOString().split("T")[0];
+dateInput.value = dateInput.min;
+
+/* =========================
+   Populate hours dropdown
+========================= */
+function populateHours() {
+  hoursSelect.innerHTML = "";
+
+  const now = new Date();
+  const selectedDate = getSelectedDateLocal();
+  const isToday = selectedDate.toDateString() === now.toDateString();
+
+  // Lock AM/PM switch for past
+  if (isToday && now.getHours() >= 12) {
+    isAM = false;
+    switchCircle.style.left = "46px";
+    ampmSwitch.style.pointerEvents = "none";
+  } else {
+    ampmSwitch.style.pointerEvents = "auto";
+  }
+
+  for (let h = 1; h <= 12; h++) {
+    let hour24 = h % 12;
+    if (!isAM) hour24 += 12;
+    if (isAM && h === 12) hour24 = 0;
+
+    // Example location hour constraints
+    if (selectedLocation === "Rec Center") {
+      const day = selectedDate.getDay();
+      if (day >= 1 && day <= 5) {
+        if (hour24 < 6 || hour24 >= 23) continue;
+      } else {
+        if (hour24 < 8 || hour24 >= 22) continue;
+      }
+    }
+
+    if (isToday) {
+      const nowMinutes = now.getHours() * 60 + now.getMinutes();
+      if (hour24 * 60 < nowMinutes) continue;
+    }
+
+    const opt = document.createElement("option");
+    opt.value = h;
+    opt.textContent = h;
+    hoursSelect.appendChild(opt);
+  }
+
+  if (!hoursSelect.options.length) {
+    const opt = document.createElement("option");
+    opt.textContent = "--";
+    opt.disabled = true;
+    opt.selected = true;
+    hoursSelect.appendChild(opt);
+  }
+}
+
+/* =========================
+   AM/PM toggle
+========================= */
+ampmSwitch.addEventListener("click", () => {
+  const now = new Date();
+  const selectedDate = getSelectedDateLocal();
+  const isToday = selectedDate.toDateString() === now.toDateString();
+  if (isToday && now.getHours() >= 12 && !isAM) return;
+
+  isAM = !isAM;
+  switchCircle.style.left = isAM ? "2px" : "46px";
+  populateHours();
+});
+
+/* =========================
+   Date change handler
+========================= */
+dateInput.addEventListener("change", populateHours);
+
+/* =========================
+   Add time handler
+========================= */
+addTimeBtn.addEventListener("click", async () => {
+  if (addTimeInProgress) return;
+  addTimeInProgress = true;
+  addTimeBtn.disabled = true;
+
+  const hour = parseInt(hoursSelect.value);
+  const minute = parseInt(minutesSelect.value);
+  const duration = parseInt(durationSelect.value);
+
+  if (!hour || minute == null || !duration) {
+    alert("Please select valid date, time, and duration");
+    addTimeInProgress = false;
+    addTimeBtn.disabled = false;
+    return;
+  }
+
+  let hour24 = hour % 12;
+  if (!isAM) hour24 += 12;
+  if (isAM && hour === 12) hour24 = 0;
+
+  const selectedDateTime = getSelectedDateLocal();
+  selectedDateTime.setHours(hour24, minute, 0, 0);
+
+  if (selectedDateTime <= new Date()) {
+    alert("Cannot select a past time");
+    addTimeInProgress = false;
+    addTimeBtn.disabled = false;
+    return;
+  }
+
+  try {
+    await fetch("/add-time", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sport: selectedSport,
+        location: selectedLocation,
+        time: selectedDateTime.toISOString(),
+        duration
+      })
+    });
+
+    await loadUserTimes();
+  } catch (err) {
+    console.error(err);
+  } finally {
+    addTimeInProgress = false;
+    addTimeBtn.disabled = false;
+  }
+});
+
+/* =========================
+   Load active user times
+========================= */
+async function loadUserTimes() {
+  try {
+    const res = await fetch(`/get-times?sport=${selectedSport}&location=${selectedLocation}`);
+    const data = await res.json();
+    const users = Array.isArray(data.times) ? data.times : [];
+
+    userTimesList.innerHTML = "";
+    const now = new Date();
+
+    users.forEach(u => {
+      const start = new Date(u.time);
+      const end = new Date(start);
+      end.setMinutes(end.getMinutes() + u.duration);
+
+      if (end > now) {
+        const li = document.createElement("li");
+        li.textContent = `${u.username} | ${start.toLocaleString()} | Playing Time: ${u.duration} min`;
+        userTimesList.appendChild(li);
+      }
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/* =========================
+   Init
+========================= */
+switchCircle.style.left = isAM ? "2px" : "46px";
+populateHours();
+loadUserTimes();
+
+// Refresh active times every 30 seconds
+setInterval(loadUserTimes, 30000);
+</script>
+</body>
+</html>
