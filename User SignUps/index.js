@@ -65,13 +65,42 @@ app.post("/signup", async (req, res) => {
       return res.redirect(`/signup.html?error=${encodeURIComponent("Only Pitt students allowed")}`);
     }
 
+    // Check if user already exists
     const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) {
+
+    // User exists but is not verified - resend verification email
+    if (existing && !existing.isVerified) {
+
+      const verificationLinkExist =
+        `${process.env.BASE_URL}/verify?token=${existing.verificationToken}`;
+
+      await transporter.sendMail({
+        from: `"SportsApp" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: "Verify your SportsApp account",
+        html: `
+          <h2>Verify your SportsApp account</h2>
+          <p>Please click below to verify your email:</p>
+          <a href="${verificationLinkExist}">Verify Email</a>
+        `
+      });
+
+      return res.send(
+        "<h2>Verification email resent!</h2><p>Please check your inbox.</p>"
+      );
+    }
+
+    // User exists and is verified
+    if (existing && existing.isVerified) {
       return res.redirect(`/login.html?success=${encodeURIComponent("Account already exists. Please log in.")}`);
     }
 
+    // Create new user
+
     const passwordHash = await bcrypt.hash(password, 12);
     const verificationToken = crypto.randomBytes(32).toString("hex");
+
+    console.log("Generated verification token:", verificationToken, "for", email);
 
     await prisma.user.create({
       data: {
@@ -83,15 +112,15 @@ app.post("/signup", async (req, res) => {
       }
     });
 
-    const verificationLink = `http://localhost:3000/verify?token=${verificationToken}`;
+    const verificationLink = `${process.env.BASE_URL}/verify?token=${verificationToken}`;
 
     await transporter.sendMail({
       from: `"SportsApp" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: "Verify your SportsApp account",
+      subject: "Welcome to SportsApp!",
       html: `
-        <h2>Welcome to SportsApp!</h2>
-        <p>Please verify your email:</p>
+        <h2>Hello ${username}!</h2>
+        <p>Are you ready to join your peers in paying sports? Before you do, please verify your email by clicking on the link below:</p>
         <a href="${verificationLink}">Verify Email</a>
       `
     });
